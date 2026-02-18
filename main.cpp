@@ -55,9 +55,9 @@ InterruptIn userBtn(D4);
 
 // Encoders (CN7 Pins)
 InterruptIn encLA(PC_10); 
-DigitalIn   encLB(PC_11); 
-InterruptIn encRA(PC_12); 
-DigitalIn   encRB(PD_2);  
+DigitalIn   encLB(PC_12); 
+InterruptIn encRA(PC_2); 
+DigitalIn   encRB(PC_3);  
 
 // =============================================================
 // GLOBALS & CONSTANTS
