@@ -1,5 +1,6 @@
 #include "mbed.h"
 #include "C12832.h"
+#include "mbed2/299/TARGET_NUCLEO_F401RE/TARGET_STM/TARGET_STM32F4/TARGET_NUCLEO_F401RE/PinNames.h"
 
 // =============================================================
 // CLASSES (Your Potentiometer Logic)
@@ -39,16 +40,16 @@ public:
 
 // Motor 1 (Left)
 PwmOut      PWM1(PB_15); 
-DigitalOut  DIR1(PB_1);  
-DigitalOut  BIP1(PB_2);  
+DigitalOut  DIR1(PC_14);  
+DigitalOut  BIP1(PA_13);  
 
 // Motor 2 (Right)
-PwmOut      PWM2(PC_7);  
-DigitalOut  DIR2(PB_12); 
-DigitalOut  BIP2(PB_9);  
+PwmOut      PWM2(PB_14);  
+DigitalOut  DIR2(PB_2); 
+DigitalOut  BIP2(PA_14);  
 
 // Common & Shield
-DigitalOut  ENA(PC_6);       
+DigitalOut  ENA(PB_1);       
 DigitalOut  heartbeat(LED1); 
 C12832      lcd(D11, D13, D12, D7, D10);
 InterruptIn userBtn(D4); 
