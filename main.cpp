@@ -1,10 +1,6 @@
 #include "mbed.h"
 #include "C12832.h"
-#include "mbed2/299/platform/wait_api.h"
 
-// =============================================================
-// CLASSES (Your Potentiometer Logic)
-// =============================================================
 class Potentiometer {
 private:
     AnalogIn inputSignal;
@@ -34,17 +30,13 @@ public:
     }
 };
 
-// =============================================================
-// HARDWARE MAPPING
-// =============================================================
-
 // Motor 1 (Left)
-DigitalOut  BIP1(PB_8);
+DigitalOut  BIP1(PA_13);
 DigitalOut  DIR1(PC_14);  
 PwmOut      PWM1(PB_15);   
 
 // Motor 2 (Right)
-DigitalOut  BIP2(PB_9); 
+DigitalOut  BIP2(PA_14); 
 DigitalOut  DIR2(PB_2); 
 PwmOut      PWM2(PB_14);  
 
@@ -52,7 +44,6 @@ PwmOut      PWM2(PB_14);
 DigitalOut  ENA(PB_1);       
 DigitalOut  heartbeat(LED1); 
 C12832      lcd(D11, D13, D12, D7, D10);
-InterruptIn userBtn(D4); 
 
 // Encoders (CN7 Pins)
 InterruptIn encLA(PC_10); 
@@ -60,7 +51,45 @@ DigitalIn   encLB(PC_12);
 InterruptIn encRA(PC_2); 
 DigitalIn   encRB(PC_3);  
 
-int main(void){
-    wait_us(50);
+int main(void) {
+    // 1. Initialize PWM Period
+    PWM1.period_us(50); // 20kHz
+    PWM2.period_us(50);
+
+    // 2. Initialize Potentiometers
+    SamplingPotentiometer potLeft(PA_0, 3.3f, 100);
+    SamplingPotentiometer potRight(PA_1, 3.3f, 100);
+
+    // 3. Enable Bipolar Operation
+    ENA = 1;   
+    BIP1 = 1;  // Set to 1 to enable Bipolar PWM mode
+    BIP2 = 1;  
+    
+    // In many bipolar configurations, DIR acts as a phase or enable for the H-bridge legs
+    DIR1 = 1;  
+    DIR2 = 1;
+
+    lcd.cls();
+    lcd.locate(0,0);
+    lcd.printf("Bipolar Mode Active");
+
+    while(true) {
+        // 4. Read Potentiometer Values (0.0 to 1.0)
+        float dutyL = potLeft.getCurrentSampleNorm();
+        float dutyR = potRight.getCurrentSampleNorm();
+
+        // 5. Apply to PWM Outputs
+        // In Bipolar mode, the duty cycle controls the average voltage:
+        // 0.5 (50%) is usually "Stop", 1.0 is "Full Forward", 0.0 is "Full Reverse"
+        PWM1.write(dutyL);
+        PWM2.write(dutyR);
+
+        // 6. Update Telemetry
+        lcd.locate(0,12);
+        lcd.printf("L-PWM: %3.0f%%  R-PWM: %3.0f%%", dutyL*100, dutyR*100);
+        
+        heartbeat = !heartbeat;
+        wait(0.1); 
+    }
 }
 
